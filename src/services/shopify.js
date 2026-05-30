@@ -11,7 +11,11 @@ const ACCESS_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
 // Clean the domain to ensure it has standard myshopify format
 const getShopifyEndpoint = () => {
   if (!STORE_DOMAIN) return '';
-  let cleanDomain = STORE_DOMAIN.trim();
+  let cleanDomain = STORE_DOMAIN.trim()
+    .replace(/^https?:\/\//i, '') // remove protocol prefix if present
+    .replace(/\/+$/, '')         // remove trailing slashes
+    .replace(/\.+/g, '.');       // collapse multiple consecutive dots into a single dot
+    
   if (!cleanDomain.includes('.myshopify.com')) {
     cleanDomain = `${cleanDomain}.myshopify.com`;
   }
@@ -159,7 +163,7 @@ export const shopifyService = {
               description
               productType
               tags
-              images(first: 1) {
+              images(first: 4) {
                 edges {
                   node {
                     url
@@ -193,7 +197,8 @@ export const shopifyService = {
 
       return edges.map(({ node }, index) => {
         const variant = node.variants?.edges?.[0]?.node;
-        const imageUrl = node.images?.edges?.[0]?.node?.url;
+        const images = node.images?.edges?.map(e => e.node?.url).filter(Boolean) || [];
+        const imageUrl = images[0];
         
         // Match specific concerns from tags
         const wellnessConcern = node.tags?.find(t => 
@@ -211,6 +216,7 @@ export const shopifyService = {
           name: node.title,
           price: Math.round(parseFloat(variant?.price?.amount || 0)) || 499,
           image: imageUrl || `/p-${(index % 7) + 1}.png`, // match fallback assets
+          images: images,
           category: node.productType || 'Capsule',
           problem: wellnessConcern,
           shortDescription: node.description || 'Premium organic Ayurvedic formulation.'

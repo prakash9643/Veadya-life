@@ -153,7 +153,7 @@ const ProductDetails = () => {
   };
 
   // Define actual multiple high-definition gallery images custom to the product's botanicals:
-  const galleryImages = [
+  const mockGallery = [
     product.image,
     product.id === 1 ? "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?q=80&w=1000&auto=format&fit=crop" :
     product.id === 2 ? "https://images.unsplash.com/photo-1601049676099-e7ed07d825b0?q=80&w=1000&auto=format&fit=crop" :
@@ -176,6 +176,10 @@ const ProductDetails = () => {
     product.id === 5 ? "https://images.unsplash.com/photo-1590156546746-c588a113f6f3?q=80&w=1000&auto=format&fit=crop" :
     "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1000&auto=format&fit=crop"  // Case 6
   ];
+
+  const galleryImages = product.images && product.images.length > 0
+    ? [...product.images, ...mockGallery.slice(product.images.length)].slice(0, 4)
+    : mockGallery;
 
   const handleAddToCart = () => {
     // Add multiple items based on quantity
